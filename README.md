@@ -1,4 +1,4 @@
-# docker-nginx-proxy
+# Outrigger HTTPS Proxy
 
 > Handles HTTPS proxying with automatic self-signed serts for SSL termination.
 
