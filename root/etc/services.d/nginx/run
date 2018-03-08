@@ -1,0 +1,5 @@
+#!/usr/bin/with-contenv sh
+
+/generate_self_signed_cert.sh
+
+exec nginx

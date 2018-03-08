@@ -1,0 +1,95 @@
+user nginx;
+worker_processes 1;
+pid /var/run/nginx.pid;
+daemon off;
+
+events {
+  worker_connections 1024;
+  # Accept as many connections as possible.
+  multi_accept on;
+}
+
+http {
+    include       /etc/nginx/mime.types;
+    default_type  application/octet-stream;
+
+    # Default logging format.
+    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                    '$status $body_bytes_sent "$http_referer" '
+                    '"$http_user_agent" "$http_x_forwarded_for"';
+    # Logstash logging format.
+    log_format logstash '$remote_addr - $remote_user [$time_local] "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent" $request_time $http_host $http_x_forwarded_proto';
+
+    sendfile on;
+    gzip  on;
+
+    {{ $rate := getenv "RATE_LIMIT" -}}
+    {{ if ne $rate "0" -}}
+    # Define a Rate Limit Policy
+    # @see https://www.nginx.com/blog/rate-limiting-nginx/
+    # @see http://nginx.org/en/docs/http/ngx_http_limit_req_module.html
+    limit_req_zone $binary_remote_addr zone=flood:10m rate={{ $rate }}r/s;
+    # Rate Limit Headers.
+    # @see https://tools.ietf.org/html/rfc6585#section-4
+    limit_req_status 429;
+    limit_conn_status 429;
+    {{ end }}
+
+    server {
+        listen 443;
+
+        # The max body size for proxied POST and PUT requests.
+        # This is most commonly a problem for file uploads.
+        client_max_body_size {{ getenv "CLIENT_MAX_BODY_SIZE" }};
+
+        # Configure SSL Certification Location
+        ssl_certificate     /etc/nginx/certs/cert.pem;
+        ssl_certificate_key /etc/nginx/certs/key.pem;
+
+        # Activate SSL & Cipher algorithms.
+        ssl on;
+        ssl_session_cache  builtin:1000  shared:SSL:10m;
+        ssl_protocols  TLSv1 TLSv1.1 TLSv1.2;
+        ssl_ciphers HIGH:!aNULL:!eNULL:!EXPORT:!CAMELLIA:!DES:!MD5:!PSK:!RC4;
+        ssl_prefer_server_ciphers on;
+
+        # Configure gzip compression for responses.
+        gzip on;
+        gzip_buffers 16 8k;
+        gzip_comp_level 6;
+        gzip_min_length 1000;
+        gzip_proxied any;
+        gzip_types
+          text/css text/javascript text/plain text/xml
+          application/javascript application/json application/hal+json
+          application/x-javascript
+          application/xml application/xml+rss
+          {{ getenv "GZIP_APPROVED_MIME_TYPES" }};
+        gzip_vary on;
+        gzip_disable "MSIE [1-6]\.(?!.*SV1)";
+
+        location / {
+          root /var/www/html/public;
+          # The proxy will check from the root for files to meet a given
+          # request before proxying along to the node service.
+          try_files $uri @service;
+        }
+
+        location @service {
+            {{ if ne $rate "0" -}}
+            limit_req zone=flood burst={{ getenv "RATE_LIMIT_BURST_QUEUE" }} nodelay;
+            {{ end -}}
+
+            proxy_set_header        Host              $host;
+            proxy_set_header        X-Real-IP         $remote_addr;
+            proxy_set_header        X-Forwarded-For   $proxy_add_x_forwarded_for;
+            proxy_set_header        X-Forwarded-Proto $scheme;
+            proxy_set_header        X-Forwarded-Host  {{ getenv "PROXY_DOMAIN"}};
+            proxy_set_header        X-Forwarded-Port  443;
+
+            proxy_pass http://{{ getenv "UPSTREAM" }};
+        }
+    }
+
+    include /etc/nginx/conf.d/*.conf;
+}

@@ -1,0 +1,4 @@
+#!/usr/bin/with-contenv sh
+
+echo '=> Running confd to write configuration templates'
+confd $CONFD_OPTS

@@ -1,0 +1,7 @@
+[template]
+src="/generate_self_signed_cert.sh.tmpl"
+dest="/generate_self_signed_cert.sh"
+mode = "0755"
+keys=[
+  "/",
+]
