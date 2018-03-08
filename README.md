@@ -2,7 +2,7 @@
 
 > Handles HTTPS proxying with automatic self-signed serts for SSL termination.
 
-[![GitHub tag](https://img.shields.io/github/tag/phase2/docker-nginx-proxy.svg)](https://github.com/phase2/docker-nginx-proxy) [![Docker Stars](https://img.shields.io/docker/stars/outrigger/nginx-proxy.svg)](https://hub.docker.com/r/outrigger/nginx-proxy) [![Docker Pulls](https://img.shields.io/docker/pulls/outrigger/nginx-proxy.svg)](https://hub.docker.com/r/outrigger/nginx-proxy) [![](https://images.microbadger.com/badges/image/outrigger/nginx-proxy:dev.svg)](https://microbadger.com/images/outrigger/nginx-proxy:dev 'Get your own image badge on microbadger.com')
+[![GitHub tag](https://img.shields.io/github/tag/phase2/docker-https-proxy.svg)](https://github.com/phase2/docker-https-proxy) [![Docker Stars](https://img.shields.io/docker/stars/outrigger/https-proxy.svg)](https://hub.docker.com/r/outrigger/https-proxy) [![Docker Pulls](https://img.shields.io/docker/pulls/outrigger/https-proxy.svg)](https://hub.docker.com/r/outrigger/https-proxy) [![](https://images.microbadger.com/badges/image/outrigger/https-proxy:dev.svg)](https://microbadger.com/images/outrigger/https-proxy:dev 'Get your own image badge on microbadger.com')
 
 This HTTPS proxy container is intended primarily for use with APIs (headless web services).
 
@@ -20,7 +20,7 @@ docker run --rm -it \
   -e "PROXY_DOMAIN=proxy.projectname.vm" \
   -l "com.dnsdock.name=proxy" \
   -l "com.dnsdock.image=projectname" \
-  outrigger/nginx-proxy:1
+  outrigger/https-proxy:1.0
 ```
 
 ### Docker Compose
@@ -30,7 +30,7 @@ docker run --rm -it \
   # The UPSTREAM service must be running.
   # https://proxy.projectname.vm
   proxy:
-    build: outrigger/nginx-proxy:1
+    build: outrigger/https-proxy:1.0
     container_name: projectname_http_proxy
     depends_on:
       - api
