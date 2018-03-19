@@ -16,7 +16,8 @@ of these features in custom code.
 
 ```bash
 docker run --rm -it \
-  -e "UPSTREAM=api.projectname.vm:3773" \
+  -e "UPSTREAM_DOMAIN=api.projectname.vm" \
+  -e "UPSTREAM_PORT=3773" \
   -e "PROXY_DOMAIN=proxy.projectname.vm" \
   -l "com.dnsdock.name=proxy" \
   -l "com.dnsdock.image=projectname" \
@@ -38,7 +39,8 @@ docker run --rm -it \
       com.dnsdock.name: proxy
       com.dnsdock.image: projectname
     environment:
-      UPSTREAM: api.projectname.vm:3773
+      UPSTREAM_DOMAIN: api.projectname.vm
+      UPSTREAM_PORT: 3773
       PROXY_DOMAIN: proxy.projectname.vm
     network_mode: bridge
 ```
