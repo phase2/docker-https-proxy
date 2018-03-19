@@ -1,3 +1,3 @@
 #!/bin/sh
 
-docker build -t outrigger/nginx-proxy .
+docker build -t outrigger/https-proxy .
