@@ -16,7 +16,8 @@ of these features in custom code.
 
 ```bash
 docker run --rm -it \
-  -e "UPSTREAM=api.projectname.vm:3773" \
+  -e "UPSTREAM_DOMAIN=api.projectname.vm" \
+  -e "UPSTREAM_PORT=3773" \
   -e "PROXY_DOMAIN=proxy.projectname.vm" \
   -l "com.dnsdock.name=proxy" \
   -l "com.dnsdock.image=projectname" \
@@ -38,7 +39,8 @@ docker run --rm -it \
       com.dnsdock.name: proxy
       com.dnsdock.image: projectname
     environment:
-      UPSTREAM: api.projectname.vm:3773
+      UPSTREAM_DOMAIN: api.projectname.vm
+      UPSTREAM_PORT: 3773
       PROXY_DOMAIN: proxy.projectname.vm
     network_mode: bridge
 ```
@@ -103,10 +105,11 @@ command-line or via your `docker-compose.yml` manifest file.
 
 * `CLIENT_MAX_BODY_SIZE`: [`20M`] Maximium size of client uploads.
 * `GZIP_APPROVED_MIME_TYPES`: [``] Additional MIME types to include in gzip compression.
-* `PROXY_DOMAIN`: [`www.example.com`] The domain in the SSL certificate.
+* `PROXY_DOMAIN`: [`www.example.com`] The domain in the SSL certificate. Relayed via X-Forwarded-Host HTTP header.
 * `RATE_LIMIT`: [`20`] Throttled requests per second per client IP address.
 * `RATE_LIMIT_BURST_QUEUE`: [`10`] Number of requests to delay before enforcing the limit.
-* `UPSTREAM`: [`proxied.example.com:80`] The target host and port for the reverse proxy.
+* `UPSTREAM_DOMAIN`: [`proxied.example.com`] The target host for the reverse proxy. Relayed via Host HTTP header.
+* `UPSTREAM_PORT`: [`80`] The target port for the proxied service.
 
 ## Maintainers
 
