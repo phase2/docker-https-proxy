@@ -31,7 +31,7 @@ docker run --rm -it \
   # The UPSTREAM service must be running.
   # https://proxy.projectname.vm
   proxy:
-    build: outrigger/https-proxy:1.0
+    image: outrigger/https-proxy:1.0
     container_name: projectname_http_proxy
     depends_on:
       - api
